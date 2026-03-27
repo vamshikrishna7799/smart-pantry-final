@@ -173,7 +173,7 @@ def send_shopping_list_email(recipient, items, profile_name):
                 <td style="padding: 12px; border-bottom: 1px solid #eee;">{item.get('quantity', 0)}</td>
                 <td style="padding: 12px; border-bottom: 1px solid #eee;">{item.get('expiry_date', 'N/A')}</td>
                 <td style="padding: 12px; border-bottom: 1px solid #eee;">{reason_icon} {item.get('status', 'Unknown')}</td>
-             </tr>
+             \u007d
             """
         
         msg = MIMEMultipart()
