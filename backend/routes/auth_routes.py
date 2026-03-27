@@ -129,10 +129,11 @@ def login():
 
 @auth_bp.route('/forgot-password/send-otp', methods=['POST'])
 def send_otp():
-    """Send OTP for password reset"""
+    print("🔔 OTP REQUEST RECEIVED!")  # Add this
     try:
         data = request.json
         email = data.get('email')
+        print(f"📧 Email received: {email}")  # Add this
         
         if not email:
             return jsonify({'message': 'Email required'}), 400
@@ -141,30 +142,31 @@ def send_otp():
         if not user:
             return jsonify({'message': 'Email not registered'}), 404
         
+        print(f"✅ User found: {user.get('username')}")  # Add this
+        
         otp_collection.delete_many({'email': email})
-        
         otp = ''.join(random.choices(string.digits, k=6))
+        print(f"🔑 Generated OTP: {otp}")  # Add this
         
-        otp_data = {
+        otp_collection.insert_one({
             'email': email,
             'otp': otp,
             'created_at': datetime.utcnow(),
             'expires_at': datetime.utcnow() + timedelta(minutes=10),
             'attempts': 0,
             'verified': False
-        }
-        otp_collection.insert_one(otp_data)
+        })
         
-        if send_otp_email(email, otp):
-            return jsonify({
-                'message': 'OTP sent successfully',
-                'email': email
-            }), 200
+        result = send_otp_email(email, otp)
+        print(f"📧 Email send result: {result}")  # Add this
+        
+        if result:
+            return jsonify({'message': 'OTP sent successfully'}), 200
         else:
-            return jsonify({'message': 'Failed to send OTP. Check email configuration.'}), 500
+            return jsonify({'message': 'Failed to send OTP'}), 500
             
     except Exception as e:
-        print(f"Send OTP error: {e}")
+        print(f"❌ OTP Error: {e}")  # Add this
         return jsonify({'message': 'Server error'}), 500
 
 @auth_bp.route('/forgot-password/resend-otp', methods=['POST'])
